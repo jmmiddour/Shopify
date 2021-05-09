@@ -35,19 +35,51 @@ Please complete the following questions, and provide your thought process/work. 
         JOIN Orders AS ord ON Ord.ShipperID = ship.ShipperID
     WHERE ship.ShipperName = "Speedy Express";
    
-    --> Result = 54
+    Result --> 54
     ```
 
 2. What is the last name of the employee with the most orders?
     - My thought process:
         1. Need to find the table(s) with employee last names.
-           - Found the `Employees` table has the `LastName` of the employees and their `EmpployeeID`.
-        2. 
+            - Found the `Employees` table has the `LastName` of the employees and their `EmpployeeID`.
+        2. Need to find the table(s) with the employee ids, and the orders that employee processed.
+            - Found that the `Orders` table has the information that I need
+        3. Need to calculate the total orders for each employee id.
+        4. Then need to sort those totals by value in descending order.
+        5. Lastly, I will show only the employee's last name that is at the top of the list
     ```
+    SELECT emp.LastName
+    FROM Employees AS emp
+        JOIN Orders AS ord ON ord.EmployeeID = emp.EmployeeID
+    GROUP BY emp.EmployeeID
+    ORDER BY COUNT(emp.EmployeeID) DESC
+    LIMIT 1;
     
+    Result --> Peacock
     ```
 
 3. What product was ordered the most by customers in Germany?
+    - My thought process:
+        1. Find the table(s) where the customer's country is listed.
+            - Found the country where the customer is in the `Customers` table. 
+        2. Look at the `Products` table to see how I have to link it back to the `Customers` table, since it was the only one with the country where the customer resides.
+            - There is a `ProductID` in the `Products` table that links to the `OrderDetails` table, which also has the `Quanitity` of the product ordered.
+            - Then the `Orders` table is what links the `Customers` table to the `OrderDetails` table with `CustomerID` and `OrderID`.
+        3. Going to need to do 3 inner joins in order to get all the information linked that I need.
+        4. Have to have a conditional statement to only look at customers in Germany
+        5. Need to get a sum for each product id
+        6. Sort all the sums in descending order
+        7. Finally, return the first value in the product name column.
     ```
-    
+    SELECT prod.ProductName
+    FROM Products AS prod
+        JOIN OrderDetails AS details ON details.ProductID = prod.ProductID
+        JOIN Orders AS ord ON ord.OrderID = details.OrderID
+        JOIN Customers AS cust ON cust.CustomerID = ord.CustomerID
+    WHERE cust.Country = "Germany"
+    GROUP BY prod.ProductName
+    ORDER BY SUM(details.Quantity) DESC
+    LIMIT 1;
+   
+    Result --> Boston Crab Meat
     ```
